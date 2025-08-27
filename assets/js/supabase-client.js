@@ -116,7 +116,7 @@ const SupabaseClient = {
       const { data, error } = await this.client.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/'
+          redirectTo: 'https://zlgan-spec.github.io/ai-day-website/'
         }
       });
       

@@ -16,9 +16,17 @@ const Common = {
   // 加载配置文件
   async loadConfig() {
     try {
+      // 优先使用生产环境配置
+      if (window.AI_DAY_CONFIG) {
+        this.config = window.AI_DAY_CONFIG;
+        console.log('使用生产环境配置');
+        return;
+      }
+      
+      // 回退到本地配置文件
       const response = await fetch('/config/project.json');
       this.config = await response.json();
-      console.log('配置加载成功');
+      console.log('使用本地配置文件');
     } catch (error) {
       console.error('配置加载失败:', error);
       this.showMessage('配置加载失败，请检查配置文件', 'error');

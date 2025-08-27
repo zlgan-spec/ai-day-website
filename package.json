@@ -2,16 +2,11 @@
   "name": "ai-day-website",
   "version": "1.0.0",
   "description": "AI-Day 持续开放活动平台",
-  "main": "index.js",
+  "main": "index.html",
   "scripts": {
-    "dev": "npx http-server -p 8000 -c-1",
-    "build": "echo 'Build completed'",
-    "start": "npx http-server -p 8000"
+    "dev": "python3 -m http.server 8000"
   },
   "keywords": ["ai-day", "voting", "submission", "supabase"],
-  "author": "Your Name",
-  "license": "MIT",
-  "devDependencies": {
-    "http-server": "^14.1.1"
-  }
+  "author": "AI-Day Team",
+  "license": "MIT"
 }

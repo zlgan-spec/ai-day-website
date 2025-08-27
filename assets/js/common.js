@@ -23,13 +23,12 @@ const Common = {
         return;
       }
       
-      // 回退到本地配置文件
-      const response = await fetch('/config/project.json');
-      this.config = await response.json();
-      console.log('使用本地配置文件');
+      // GitHub Pages 环境下，如果没有配置则显示错误
+      console.error('生产环境配置未找到');
+      this.showMessage('系统配置错误，请联系管理员', 'error');
     } catch (error) {
       console.error('配置加载失败:', error);
-      this.showMessage('配置加载失败，请检查配置文件', 'error');
+      this.showMessage('系统配置错误，请联系管理员', 'error');
     }
   },
   

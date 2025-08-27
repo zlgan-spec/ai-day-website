@@ -189,6 +189,17 @@
     <script src="../assets/js/common.js"></script>
     <script src="../assets/js/supabase-client.js"></script>
     <script>
+        // 生产环境配置
+        window.AI_DAY_CONFIG = {
+            supabase: {
+                url: 'https://kmgcadrtpagoydzgtust.supabase.co',
+                anon_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZ2NhZHJ0cGFnb3lkemd0dXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyNzM5MjMsImV4cCI6MjA3MTg0OTkyM30.8rZZK0zRxz4HRsjRHbUamxOgIB1aWQGKu6wjyTafI9w'
+            },
+            google: {
+                client_id: '674447917014-ikkrpa6bvqjekpmijvvf6sq8ilegiltn.apps.googleusercontent.com'
+            }
+        };
+        
         // 页面特定的 JavaScript
         let submissions = [];
         let userVotes = [];

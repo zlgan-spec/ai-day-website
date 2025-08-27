@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投票页面 - AI-Day</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': '#FF6B2B',
+                        'brand-light': '#FF8A4D',
+                        'brand-dark': '#E55A1F',
+                        'dark-gray': '#1A1A1A',
+                        'card-bg': '#2A2A2A'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-black text-white">
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-sm z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                                    <div class="flex items-center space-x-2">
+                    <img src="../assets/images/aftership-icon.png" alt="AfterShip Icon" class="w-8 h-8 object-contain">
+                    <span class="text-white text-lg font-semibold">aftership</span>
+                </div>
+                    <div class="w-px h-6 bg-gray-600"></div>
+                    <a href="/" class="text-2xl font-bold text-white">AI-Day</a>
+                </div>
+                
+                <!-- 导航菜单 -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-300 hover:text-white transition-colors">首页</a>
+                    <a href="/pages/submit.html" class="text-gray-300 hover:text-white transition-colors">作品提交</a>
+                    <a href="/pages/vote.html" class="text-white px-4 py-2 rounded-lg border border-white">我要投票</a>
+                </div>
+                
+                <!-- 用户信息/登录按钮 -->
+                <div class="flex items-center space-x-4">
+                    <div id="user-info" class="hidden text-sm text-gray-300"></div>
+                    <button id="login-btn" data-auth="unauth" class="bg-brand hover:bg-brand-light text-white px-4 py-2 rounded-lg transition-colors">
+                        使用 Google 登录
+                    </button>
+                    <button id="logout-btn" data-auth="required" class="hidden text-gray-300 hover:text-white transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="pt-28 pb-0 relative">
+        <!-- 背景装饰 -->
+        <div class="absolute top-0 right-0 w-96 h-96 opacity-15 animate-pulse" style="animation-duration: 3s;">
+            <div class="w-full h-full bg-gradient-to-br from-brand/40 to-brand-light/40 rounded-full blur-3xl"></div>
+        </div>
+        
+        <!-- 左侧装饰 -->
+        <div class="absolute top-20 left-0 w-64 h-64 opacity-10 animate-bounce">
+            <div class="w-full h-full bg-gradient-to-bl from-brand to-brand-dark rounded-full blur-2xl"></div>
+        </div>
+        
+        <!-- 重复的装饰元素 - 提升长页面视觉效果 -->
+        <div class="fixed top-[800px] right-20 w-48 h-48 opacity-8 animate-pulse pointer-events-none" style="animation-duration: 4s;">
+            <div class="w-full h-full bg-gradient-to-br from-brand/30 to-brand-light/30 rounded-full blur-2xl"></div>
+        </div>
+        
+        <div class="fixed top-[1200px] left-16 w-32 h-32 opacity-6 animate-bounce pointer-events-none" style="animation-duration: 2.5s;">
+            <div class="w-full h-full bg-gradient-to-bl from-brand/25 to-brand-dark/25 rounded-full blur-xl"></div>
+        </div>
+        
+        <div class="fixed top-[1600px] right-32 w-56 h-56 opacity-10 animate-pulse pointer-events-none" style="animation-duration: 5s;">
+            <div class="w-full h-full bg-gradient-to-br from-brand/35 to-brand-light/35 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="fixed top-[2000px] left-24 w-40 h-40 opacity-7 animate-bounce pointer-events-none" style="animation-duration: 3.5s;">
+            <div class="w-full h-full bg-gradient-to-bl from-brand/20 to-brand-dark/20 rounded-full blur-2xl"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <!-- 页面标题和统计 -->
+            <div class="text-center mb-16">
+                <h1 class="text-4xl font-bold text-white mb-6">为喜欢的作品投票</h1>
+                <p class="text-xl text-gray-300 mb-8">发现优秀的 AI 创意，用你的投票支持它们</p>
+                
+                <!-- 投票统计 -->
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <div class="bg-black/50 rounded-xl p-6 text-center min-w-[150px] border border-[#D6D6D6]/20">
+                        <div class="text-3xl font-bold text-brand mb-2" id="total-submissions">0</div>
+                        <div class="text-gray-400">总作品数</div>
+                    </div>
+                    <div class="bg-black/50 rounded-xl p-6 text-center min-w-[150px] border border-[#D6D6D6]/20">
+                        <div class="text-3xl font-bold text-brand mb-2" id="total-votes">0</div>
+                        <div class="text-gray-400">总投票数</div>
+                    </div>
+                    <div class="bg-black/50 rounded-xl p-6 text-center min-w-[150px] border border-[#D6D6D6]/20" id="user-votes-container" data-auth="required">
+                        <div class="text-3xl font-bold text-brand mb-2" id="remaining-votes">3</div>
+                        <div class="text-gray-400">剩余票数</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 登录提示（未登录用户） -->
+            <div id="login-prompt" data-auth="unauth" class="bg-black/50 rounded-2xl p-8 text-center mb-8 border border-[#D6D6D6]/20">
+                <div class="w-20 h-20 bg-brand rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-semibold text-white mb-4">需要登录才能投票</h2>
+                <p class="text-gray-400 mb-6">请使用 Google 账号登录后，即可为喜欢的作品投票</p>
+                <button id="prompt-login-btn" class="bg-brand hover:bg-brand-light text-white px-6 py-3 rounded-lg text-lg font-semibold transition-colors">
+                    立即登录
+                </button>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="mb-8">
+                <div class="max-w-md mx-auto">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="搜索作品名称..." 
+                            class="w-full px-4 py-3 pl-12 bg-black/50 border border-[#D6D6D6]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-300"
+                        >
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 作品列表 -->
+            <div id="submissions-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 作品卡片将通过 JavaScript 动态生成 -->
+            </div>
+
+            <!-- 加载状态 -->
+            <div id="loading-state" class="text-center py-12">
+                <div class="inline-flex items-center space-x-2">
+                    <svg class="animate-spin h-6 w-6 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-gray-400">正在加载作品...</span>
+                </div>
+            </div>
+
+            <!-- 空状态 -->
+            <div id="empty-state" class="hidden text-center py-12">
+                <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">还没有作品</h3>
+                <p class="text-gray-400 mb-6">成为第一个提交作品的人吧！</p>
+                <a href="/pages/submit.html" class="bg-brand hover:bg-brand-light text-white px-6 py-3 rounded-lg text-lg font-semibold transition-colors inline-block">
+                    提交作品
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部区域 -->
+    <footer class="bg-black/50 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; AI-Day. 持续开放的 AI 创意展示平台.</p>
+        </div>
+    </footer>
+
+    <!-- 加载 JavaScript -->
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/supabase-client.js"></script>
+    <script>
+        // 页面特定的 JavaScript
+        let submissions = [];
+        let userVotes = [];
+        let remainingVotes = 3;
+        let filteredSubmissions = []; // 过滤后的作品列表
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 登录按钮点击事件
+            document.getElementById('login-btn').addEventListener('click', async function() {
+                const success = await SupabaseClient.signInWithGoogle();
+                if (success) {
+                    Common.showMessage('正在跳转到 Google 登录...', 'info');
+                }
+            });
+
+            // 提示登录按钮点击事件
+            document.getElementById('prompt-login-btn').addEventListener('click', async function() {
+                const success = await SupabaseClient.signInWithGoogle();
+                if (success) {
+                    Common.showMessage('正在跳转到 Google 登录...', 'info');
+                }
+            });
+            
+            // 退出登录按钮点击事件
+            document.getElementById('logout-btn').addEventListener('click', async function() {
+                const success = await SupabaseClient.signOut();
+                if (success) {
+                    Common.showMessage('已成功退出登录', 'success');
+                }
+            });
+
+            // 搜索框事件监听器
+            document.getElementById('search-input').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                filterSubmissions(searchTerm);
+            });
+
+            // 初始化页面
+            initPage();
+        });
+
+        // 初始化页面
+        async function initPage() {
+            try {
+                // 等待 Supabase 客户端就绪
+                if (!SupabaseClient.client) {
+                    setTimeout(initPage, 200);
+                    return;
+                }
+                
+                // 确保用户认证状态已确定
+                if (SupabaseClient.isAuthenticated() && !SupabaseClient.getCurrentUser()) {
+                    setTimeout(initPage, 200);
+                    return;
+                }
+                
+                // 并行加载数据，提高效率
+                await Promise.all([
+                    loadUserVotes(),
+                    loadSubmissions()
+                ]);
+                
+                // 更新UI
+                updateUI();
+                updateStats();
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+                // 如果失败，稍后重试
+                setTimeout(initPage, 1000);
+            }
+        }
+
+        // 加载作品列表
+        async function loadSubmissions() {
+            try {
+                if (!SupabaseClient.client) {
+                    setTimeout(loadSubmissions, 200);
+                    return;
+                }
+                
+                const { data, error } = await SupabaseClient.client
+                    .from('submissions')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                
+                submissions = data || [];
+                filteredSubmissions = [...submissions];
+                updateSubmissionsUI();
+                updateStats();
+            } catch (error) {
+                console.error('加载作品失败:', error);
+                // 如果失败，稍后重试
+                setTimeout(loadSubmissions, 1000);
+            }
+        }
+
+        // 搜索过滤作品
+        function filterSubmissions(searchTerm) {
+            if (!searchTerm) {
+                filteredSubmissions = [...submissions];
+            } else {
+                filteredSubmissions = submissions.filter(submission => 
+                    submission.title.toLowerCase().includes(searchTerm) ||
+                    submission.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            updateSubmissionsUI();
+        }
+
+        // 加载用户投票记录
+        async function loadUserVotes() {
+            if (!SupabaseClient.isAuthenticated()) {
+                userVotes = [];
+                remainingVotes = 3;
+                return;
+            }
+
+            try {
+                if (!SupabaseClient.client) {
+                    setTimeout(loadUserVotes, 200);
+                    return;
+                }
+                
+                const { data, error } = await SupabaseClient.client
+                    .from('votes')
+                    .select('submission_id')
+                    .eq('user_id', SupabaseClient.getCurrentUser().id);
+
+                if (error) throw error;
+                
+                userVotes = data || [];
+                remainingVotes = Math.max(0, 3 - userVotes.length);
+            } catch (error) {
+                console.error('加载用户投票失败:', error);
+            }
+        }
+
+        // 更新作品列表UI
+        function updateSubmissionsUI() {
+            const container = document.getElementById('submissions-container');
+            const loadingState = document.getElementById('loading-state');
+            const emptyState = document.getElementById('empty-state');
+
+            // 隐藏加载状态
+            loadingState.classList.add('hidden');
+
+            if (filteredSubmissions.length === 0) {
+                // 显示空状态或搜索结果为空
+                if (submissions.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    // 显示搜索结果为空
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-white mb-2">未找到相关作品</h3>
+                            <p class="text-gray-400">请尝试其他搜索关键词</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            // 隐藏空状态
+            emptyState.classList.add('hidden');
+
+            // 生成作品卡片
+            container.innerHTML = filteredSubmissions.map(submission => {
+                const hasVoted = userVotes.some(vote => vote.submission_id === submission.id);
+                const canVote = remainingVotes > 0 && !hasVoted;
+                
+                return `
+                    <div class="bg-black/50 rounded-2xl p-6 hover:transform hover:scale-105 transition-all duration-300 border border-[#D6D6D6]/20 hover:border-brand/30 hover:shadow-lg hover:shadow-brand/10 h-full flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-semibold text-white group-hover:text-brand transition-colors flex-1 mr-3">${escapeHtml(submission.title)}</h3>
+                            <div class="flex items-center space-x-2 bg-gray-800/50 px-3 py-2 rounded-lg flex-shrink-0">
+                                <svg class="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                <span class="text-sm text-gray-400">票数</span>
+                                <span class="text-xl font-bold text-brand">${submission.vote_count}</span>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-300 mb-6 leading-relaxed text-sm flex-1">${escapeHtml(submission.description)}</p>
+                        
+                        <div class="flex flex-col space-y-3 pt-4 border-t border-gray-700/50">
+                            
+                            
+                            <div class="flex justify-center">
+                                ${hasVoted ? 
+                                    '<span class="text-green-400 text-sm font-medium bg-green-900/20 px-3 py-1 rounded-full border border-green-500/30">✓ 已投票</span>' :
+                                    canVote ? 
+                                        `<button onclick="voteSubmission('${submission.id}')" class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-all duration-300 border border-gray-600 hover:border-gray-500 flex items-center space-x-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                            </svg>
+                                            <span>投票</span>
+                                        </button>` :
+                                        '<span class="text-gray-500 text-sm bg-gray-800/50 px-3 py-1 rounded-full">票数已用完</span>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const totalSubmissions = document.getElementById('total-submissions');
+            const totalVotes = document.getElementById('total-votes');
+            const remainingVotesEl = document.getElementById('remaining-votes');
+
+            // 显示总作品数，但如果有搜索过滤，显示当前显示数量
+            const searchInput = document.getElementById('search-input');
+            const isSearching = searchInput && searchInput.value.trim();
+            
+            if (isSearching) {
+                totalSubmissions.textContent = `${filteredSubmissions.length}/${submissions.length}`;
+            } else {
+                totalSubmissions.textContent = submissions.length;
+            }
+            
+            const totalVoteCount = submissions.reduce((sum, submission) => sum + submission.vote_count, 0);
+            totalVotes.textContent = totalVoteCount;
+            
+            remainingVotesEl.textContent = remainingVotes;
+        }
+
+        // 更新UI状态
+        function updateUI() {
+            if (SupabaseClient.isAuthenticated()) {
+                document.getElementById('user-votes-container').classList.remove('hidden');
+            } else {
+                document.getElementById('user-votes-container').classList.add('hidden');
+            }
+        }
+
+        // 投票功能
+        async function voteSubmission(submissionId) {
+            if (!SupabaseClient.isAuthenticated()) {
+                Common.showMessage('请先登录', 'error');
+                return;
+            }
+
+            if (remainingVotes <= 0) {
+                Common.showMessage('你的投票次数已用完', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await SupabaseClient.client
+                    .from('votes')
+                    .insert([
+                        {
+                            user_id: SupabaseClient.getCurrentUser().id,
+                            submission_id: submissionId
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                // 更新本地状态
+                userVotes.push({ submission_id: submissionId });
+                remainingVotes = Math.max(0, remainingVotes - 1);
+
+                // 立即更新UI
+                updateSubmissionsUI();
+                updateStats();
+                updateUI();
+                
+                // 异步重新验证状态，确保数据一致性
+                setTimeout(async () => {
+                    try {
+                        await loadUserVotes();
+                        updateStats();
+                        updateUI();
+                    } catch (error) {
+                        console.error('状态验证失败:', error);
+                    }
+                }, 500);
+
+                Common.showMessage('投票成功！', 'success');
+            } catch (error) {
+                console.error('投票失败:', error);
+                Common.showMessage('投票失败，请重试', 'error');
+            }
+        }
+
+
+
+
+
+        // 工具函数：转义HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品提交测试 - AI-Day</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': '#FF6B2B',
+                        'brand-light': '#FF8A4D',
+                        'brand-dark': '#E55A1F',
+                        'dark-gray': '#1A1A1A',
+                        'card-bg': '#2A2A2A'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-20 relative">
+        <!-- 背景装饰 -->
+        <div class="absolute top-0 right-0 w-96 h-96 opacity-20 animate-pulse">
+            <div class="w-full h-full bg-gradient-to-br from-brand to-brand-light rounded-full blur-3xl"></div>
+        </div>
+        
+        <!-- 左侧装饰 -->
+        <div class="absolute top-20 left-0 w-64 h-64 opacity-10 animate-bounce">
+            <div class="w-full h-full bg-gradient-to-bl from-brand to-brand-dark rounded-full blur-2xl"></div>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-center mb-12 relative z-10">作品提交功能测试</h1>
+        
+        <div class="bg-card-bg rounded-2xl p-8 relative z-10">
+            <h2 class="text-2xl font-semibold mb-6">测试项目</h2>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">1. 用户状态</h3>
+                    <div id="user-status" class="text-gray-300">检查中...</div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">2. 数据库连接</h3>
+                    <div id="db-status" class="text-gray-300">检查中...</div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">3. 作品提交测试</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="test-title" placeholder="测试作品标题" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                        <textarea id="test-description" placeholder="测试作品描述" rows="3" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"></textarea>
+                        <button id="test-submit-btn" class="bg-brand hover:bg-brand-light text-white px-6 py-2 rounded-lg transition-colors">
+                            测试提交
+                        </button>
+                    </div>
+                    <div id="submit-result" class="mt-2 text-sm"></div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">4. 作品列表测试</h3>
+                    <button id="test-load-btn" class="bg-brand hover:bg-brand-light text-white px-6 py-2 rounded-lg transition-colors">
+                        加载作品列表
+                    </button>
+                    <div id="submissions-list" class="mt-4 space-y-2"></div>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-700">
+                <a href="/" class="text-brand hover:text-brand-light">← 返回首页</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载 JavaScript -->
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/supabase-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 等待模块初始化
+            setTimeout(() => {
+                runTests();
+            }, 500);
+            
+            // 测试提交按钮
+            document.getElementById('test-submit-btn').addEventListener('click', async function() {
+                await testSubmission();
+            });
+            
+            // 测试加载按钮
+            document.getElementById('test-load-btn').addEventListener('click', async function() {
+                await testLoadSubmissions();
+            });
+        });
+
+        // 运行测试
+        function runTests() {
+            testUserStatus();
+            testDatabaseConnection();
+        }
+
+        // 测试用户状态
+        function testUserStatus() {
+            const userStatus = document.getElementById('user-status');
+            
+            if (SupabaseClient.isAuthenticated()) {
+                const user = SupabaseClient.getCurrentUser();
+                userStatus.innerHTML = `
+                    <span class="text-green-400">✅ 已登录</span><br>
+                    <span class="text-sm text-gray-400">用户: ${user.name} (${user.email})</span>
+                `;
+            } else {
+                userStatus.innerHTML = '<span class="text-red-400">❌ 未登录，请先登录</span>';
+            }
+        }
+
+        // 测试数据库连接
+        function testDatabaseConnection() {
+            const dbStatus = document.getElementById('db-status');
+            
+            if (SupabaseClient.client) {
+                dbStatus.innerHTML = '<span class="text-green-400">✅ 数据库连接正常</span>';
+            } else {
+                dbStatus.innerHTML = '<span class="text-red-400">❌ 数据库连接失败</span>';
+            }
+        }
+
+        // 测试作品提交
+        async function testSubmission() {
+            const title = document.getElementById('test-title').value.trim();
+            const description = document.getElementById('test-description').value.trim();
+            const resultDiv = document.getElementById('submit-result');
+            
+            if (!title || !description) {
+                resultDiv.innerHTML = '<span class="text-red-400">请填写标题和描述</span>';
+                return;
+            }
+
+            if (!SupabaseClient.isAuthenticated()) {
+                resultDiv.innerHTML = '<span class="text-red-400">请先登录</span>';
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<span class="text-yellow-400">正在提交...</span>';
+                
+                const { data, error } = await SupabaseClient.client
+                    .from('submissions')
+                    .insert([
+                        {
+                            title: title,
+                            description: description,
+                            user_id: SupabaseClient.getCurrentUser().id
+                        }
+                    ])
+                    .select();
+
+                if (error) throw error;
+                
+                resultDiv.innerHTML = '<span class="text-green-400">✅ 提交成功！</span>';
+                
+                // 清空输入框
+                document.getElementById('test-title').value = '';
+                document.getElementById('test-description').value = '';
+                
+            } catch (error) {
+                console.error('提交失败:', error);
+                resultDiv.innerHTML = `<span class="text-red-400">❌ 提交失败: ${error.message}</span>`;
+            }
+        }
+
+        // 测试加载作品列表
+        async function testLoadSubmissions() {
+            const listDiv = document.getElementById('submissions-list');
+            
+            try {
+                listDiv.innerHTML = '<span class="text-yellow-400">正在加载...</span>';
+                
+                const { data, error } = await SupabaseClient.client
+                    .from('submissions')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    listDiv.innerHTML = data.map(submission => `
+                        <div class="p-3 bg-gray-700 rounded-lg">
+                            <div class="font-semibold">${submission.title}</div>
+                            <div class="text-sm text-gray-400">${submission.description}</div>
+                            <div class="text-xs text-gray-500 mt-1">票数: ${submission.vote_count} | 时间: ${new Date(submission.created_at).toLocaleString()}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    listDiv.innerHTML = '<span class="text-gray-400">暂无作品</span>';
+                }
+                
+            } catch (error) {
+                console.error('加载失败:', error);
+                listDiv.innerHTML = `<span class="text-red-400">❌ 加载失败: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

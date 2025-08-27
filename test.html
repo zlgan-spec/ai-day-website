@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录测试 - AI-Day</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': '#FF6B2B',
+                        'brand-light': '#FF8A4D',
+                        'brand-dark': '#E55A1F',
+                        'dark-gray': '#1A1A1A',
+                        'card-bg': '#2A2A2A'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-20 relative">
+        <!-- 背景装饰 -->
+        <div class="absolute top-0 right-0 w-96 h-96 opacity-20 animate-pulse">
+            <div class="w-full h-full bg-gradient-to-br from-brand to-brand-light rounded-full blur-3xl"></div>
+        </div>
+        
+        <!-- 左侧装饰 -->
+        <div class="absolute top-20 left-0 w-64 h-64 opacity-10 animate-bounce">
+            <div class="w-full h-full bg-gradient-to-bl from-brand to-brand-dark rounded-full blur-2xl"></div>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-center mb-12 relative z-10">AI-Day 登录测试页面</h1>
+        
+        <div class="bg-card-bg rounded-2xl p-8 relative z-10">
+            <h2 class="text-2xl font-semibold mb-6">测试项目</h2>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">1. 配置检查</h3>
+                    <div id="config-status" class="text-gray-300">检查中...</div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">2. Supabase 连接</h3>
+                    <div id="supabase-status" class="text-gray-300">检查中...</div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">3. 用户状态</h3>
+                    <div id="user-status" class="text-gray-300">检查中...</div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-brand mb-2">4. 登录测试</h3>
+                    <div class="flex space-x-4">
+                        <button id="login-test-btn" class="bg-brand hover:bg-brand-light text-white px-4 py-2 rounded-lg transition-colors">
+                            测试 Google 登录
+                        </button>
+                        <button id="logout-test-btn" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition-colors hidden">
+                            测试退出登录
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-700">
+                <a href="/" class="text-brand hover:text-brand-light">← 返回首页</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载 JavaScript -->
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/supabase-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 等待模块初始化
+            setTimeout(() => {
+                runTests();
+            }, 500);
+            
+            // 登录测试按钮
+            document.getElementById('login-test-btn').addEventListener('click', async function() {
+                const success = await SupabaseClient.signInWithGoogle();
+                if (success) {
+                    Common.showMessage('正在跳转到 Google 登录...', 'info');
+                }
+            });
+            
+            // 退出登录测试按钮
+            document.getElementById('logout-test-btn').addEventListener('click', async function() {
+                const success = await SupabaseClient.signOut();
+                if (success) {
+                    Common.showMessage('已成功退出登录', 'success');
+                    updateUserStatus();
+                }
+            });
+        });
+
+        // 运行测试
+        function runTests() {
+            // 测试 1: 配置检查
+            testConfig();
+            
+            // 测试 2: Supabase 连接
+            testSupabase();
+            
+            // 测试 3: 用户状态
+            updateUserStatus();
+        }
+
+        // 测试配置
+        function testConfig() {
+            const configStatus = document.getElementById('config-status');
+            
+            if (Common.config) {
+                if (Common.config.supabase?.url && Common.config.supabase?.anon_key) {
+                    configStatus.innerHTML = `
+                        <span class="text-green-400">✅ 配置完整</span><br>
+                        <span class="text-sm text-gray-400">URL: ${Common.config.supabase.url.substring(0, 30)}...</span>
+                    `;
+                } else {
+                    configStatus.innerHTML = '<span class="text-red-400">❌ 配置缺失</span>';
+                }
+            } else {
+                configStatus.innerHTML = '<span class="text-red-400">❌ 配置未加载</span>';
+            }
+        }
+
+        // 测试 Supabase
+        function testSupabase() {
+            const supabaseStatus = document.getElementById('supabase-status');
+            
+            if (SupabaseClient.client) {
+                supabaseStatus.innerHTML = '<span class="text-green-400">✅ 连接成功</span>';
+            } else {
+                supabaseStatus.innerHTML = '<span class="text-yellow-400">⏳ 连接中...</span>';
+                
+                // 再次检查
+                setTimeout(() => {
+                    if (SupabaseClient.client) {
+                        supabaseStatus.innerHTML = '<span class="text-green-400">✅ 连接成功</span>';
+                    } else {
+                        supabaseStatus.innerHTML = '<span class="text-red-400">❌ 连接失败</span>';
+                    }
+                }, 2000);
+            }
+        }
+
+        // 更新用户状态
+        function updateUserStatus() {
+            const userStatus = document.getElementById('user-status');
+            const loginBtn = document.getElementById('login-test-btn');
+            const logoutBtn = document.getElementById('logout-test-btn');
+            
+            if (SupabaseClient.isAuthenticated()) {
+                const user = SupabaseClient.getCurrentUser();
+                userStatus.innerHTML = `
+                    <span class="text-green-400">✅ 已登录</span><br>
+                    <span class="text-sm text-gray-400">用户: ${user.name} (${user.email})</span>
+                `;
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+            } else {
+                userStatus.innerHTML = '<span class="text-gray-400">未登录</span>';
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        // 监听认证状态变化
+        if (window.SupabaseClient) {
+            // 定期检查状态
+            setInterval(updateUserStatus, 1000);
+        }
+    </script>
+</body>
+</html>

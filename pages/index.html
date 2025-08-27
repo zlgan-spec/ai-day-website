@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Day 活动网页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': '#FF6B2B',
+                        'brand-light': '#FF8A4D',
+                        'brand-dark': '#E55A1F',
+                        'dark-gray': '#1A1A1A',
+                        'card-bg': '#2A2A2A'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-sm z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-white">AI-Day</h1>
+                </div>
+                
+                <!-- 导航菜单 -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-white px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-black transition-colors">首页</a>
+                    <a href="/pages/submit.html" class="text-gray-300 hover:text-white transition-colors">作品提交</a>
+                    <a href="/pages/vote.html" class="text-gray-300 hover:text-white transition-colors">我要投票</a>
+                </div>
+                
+                <!-- 用户信息/登录按钮 -->
+                <div class="flex items-center space-x-4">
+                    <div id="user-info" class="hidden text-sm text-gray-300"></div>
+                    <button id="login-btn" data-auth="unauth" class="bg-brand hover:bg-brand-light text-white px-4 py-2 rounded-lg transition-colors">
+                        使用 Google 登录
+                    </button>
+                    <button id="logout-btn" data-auth="required" class="hidden text-gray-300 hover:text-white transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="pt-20 pb-16">
+        <!-- 英雄区域 -->
+        <section class="relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                <!-- 背景装饰 -->
+                <div class="absolute top-0 right-0 w-96 h-96 opacity-20">
+                    <div class="w-full h-full bg-gradient-to-br from-brand to-brand-light rounded-full blur-3xl"></div>
+                </div>
+                
+                <!-- 主要内容卡片 -->
+                <div class="relative bg-card-bg rounded-3xl p-12 max-w-4xl mx-auto text-center">
+                    <!-- 活动信息 -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center text-sm text-gray-400 mb-6">
+                            <span>持续开放活动</span>
+                            <span>在线参与</span>
+                        </div>
+                        
+                        <h1 class="text-6xl font-bold text-white mb-6 leading-tight">
+                            AI-Day 创意展示
+                        </h1>
+                        
+                        <p class="text-xl text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
+                            这是一个持续开放的 AI 创意展示平台，你可以随时提交你的 AI 作品，也可以为喜欢的作品投票。每个用户都有 3 票投票权，让我们一起发现和分享优秀的 AI 创意！
+                        </p>
+                    </div>
+                    
+                    <!-- 行动按钮 -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="window.location.href='/pages/submit.html'" class="bg-gradient-to-r from-brand to-brand-light hover:from-brand-light hover:to-brand text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-brand/25 flex items-center justify-center space-x-2">
+                            <span>提交作品</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </button>
+                        
+                        <button onclick="window.location.href='/pages/vote.html'" class="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4 rounded-xl text-lg font-semibold transition-all transform hover:scale-105 flex items-center justify-center space-x-2">
+                            <span>我要投票</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能特色区域 -->
+        <section class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center text-white mb-16">平台特色</h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- 特色 1 -->
+                    <div class="bg-card-bg rounded-2xl p-8 text-center hover:transform hover:scale-105 transition-all">
+                        <div class="w-16 h-16 bg-brand rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-4">随时提交</h3>
+                        <p class="text-gray-400">没有截止时间，你可以随时提交你的 AI 作品，分享你的创意想法。</p>
+                    </div>
+                    
+                    <!-- 特色 2 -->
+                    <div class="bg-card-bg rounded-2xl p-8 text-center hover:transform hover:scale-105 transition-all">
+                        <div class="w-16 h-16 bg-brand rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-4">公平投票</h3>
+                        <p class="text-gray-400">每个用户都有 3 票投票权，公平公正地选出最受欢迎的作品。</p>
+                    </div>
+                    
+                    <!-- 特色 3 -->
+                    <div class="bg-card-bg rounded-2xl p-8 text-center hover:transform hover:scale-105 transition-all">
+                        <div class="w-16 h-16 bg-brand rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-4">持续活跃</h3>
+                        <p class="text-gray-400">平台永久开放，作品和投票持续积累，形成长期价值。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部区域 -->
+    <footer class="bg-card-bg py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; 2024 AI-Day. 持续开放的 AI 创意展示平台.</p>
+        </div>
+    </footer>
+
+    <!-- 加载 JavaScript -->
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/supabase-client.js"></script>
+    <script>
+        // 页面特定的 JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // 登录按钮点击事件
+            document.getElementById('login-btn').addEventListener('click', async function() {
+                const success = await SupabaseClient.signInWithGoogle();
+                if (success) {
+                    Common.showMessage('正在跳转到 Google 登录...', 'info');
+                }
+            });
+            
+            // 退出登录按钮点击事件
+            document.getElementById('logout-btn').addEventListener('click', async function() {
+                const success = await SupabaseClient.signOut();
+                if (success) {
+                    Common.showMessage('已成功退出登录', 'success');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

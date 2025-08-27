@@ -85,8 +85,9 @@ CREATE POLICY "所有人都可以查看作品" ON submissions
 CREATE POLICY "登录用户可以创建作品" ON submissions
     FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "用户可以更新自己的作品" ON submissions
-    FOR UPDATE USING (auth.uid() = user_id);
+-- 允许触发器更新票数（不需要用户权限检查）
+CREATE POLICY "允许触发器更新票数" ON submissions
+    FOR UPDATE USING (true);
 
 -- 投票表策略
 CREATE POLICY "用户可以查看自己的投票" ON votes

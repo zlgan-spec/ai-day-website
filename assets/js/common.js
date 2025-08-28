@@ -43,13 +43,38 @@ const Common = {
   
   // 检查认证状态
   checkAuthStatus() {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      this.user = JSON.parse(localStorage.getItem('user_info') || '{}');
-      this.updateUIForAuthenticatedUser();
-    } else {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const userInfo = localStorage.getItem('user_info');
+      
+      if (token && userInfo) {
+        try {
+          this.user = JSON.parse(userInfo);
+          // 验证用户信息的完整性
+          if (this.user && this.user.id && this.user.email) {
+            this.updateUIForAuthenticatedUser();
+            return;
+          }
+        } catch (parseError) {
+          console.warn('用户信息解析失败，清除无效数据:', parseError);
+        }
+      }
+      
+      // 如果没有有效数据，清除所有认证信息
+      this.clearAuthData();
+      this.updateUIForUnauthenticatedUser();
+    } catch (error) {
+      console.error('检查认证状态时出错:', error);
+      this.clearAuthData();
       this.updateUIForUnauthenticatedUser();
     }
+  },
+  
+  // 清除认证数据
+  clearAuthData() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_info');
+    this.user = null;
   },
   
       // 更新已认证用户的UI

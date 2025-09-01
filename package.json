@@ -4,7 +4,8 @@
   "description": "AI-Day 持续开放活动平台",
   "main": "index.html",
   "scripts": {
-    "dev": "python3 -m http.server 8000"
+    "dev": "python3 -m http.server 8000",
+    "check": "node scripts/check-deployment.js"
   },
   "keywords": ["ai-day", "voting", "submission", "supabase"],
   "author": "AI-Day Team",

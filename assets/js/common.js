@@ -16,15 +16,24 @@ const Common = {
   // 加载配置文件
   async loadConfig() {
     try {
-      // 优先使用生产环境配置
+      // 等待配置管理模块初始化
+      if (window.ConfigManager) {
+        this.config = window.ConfigManager.getConfig();
+        if (this.config) {
+          console.log('使用配置管理模块的配置');
+          return;
+        }
+      }
+      
+      // 向后兼容：尝试使用 window.AI_DAY_CONFIG
       if (window.AI_DAY_CONFIG) {
         this.config = window.AI_DAY_CONFIG;
-        console.log('使用生产环境配置');
+        console.log('使用 window.AI_DAY_CONFIG 配置');
         return;
       }
       
-      // GitHub Pages 环境下，如果没有配置则显示错误
-      console.error('生产环境配置未找到');
+      // 如果都没有配置，显示错误
+      console.error('配置未找到');
       this.showMessage('系统配置错误，请联系管理员', 'error');
     } catch (error) {
       console.error('配置加载失败:', error);
